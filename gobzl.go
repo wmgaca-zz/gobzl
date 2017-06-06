@@ -40,22 +40,25 @@ func listInstances() {
 
 	for _, reservation := range resp.Reservations {
 		for _, instance := range reservation.Instances {
-			pub := ""
-			if instance.PublicIpAddress != nil {
-				pub = *instance.PublicIpAddress
-			}
-
 			table.Append([]string{
-				*instance.InstanceId,
+				stringFromPointer(instance.InstanceId, ""),
 				getName(instance.Tags),
-				*instance.PrivateIpAddress,
-				pub, //*instance.PublicIpAddress,
-				*instance.InstanceType,
+				stringFromPointer(instance.PrivateIpAddress, ""),
+				stringFromPointer(instance.PublicIpAddress, ""),
+				stringFromPointer(instance.InstanceType, ""),
 			})
 		}
 	}
 
 	table.Render()
+}
+
+func stringFromPointer(value *string, defaultValue string) string {
+	if value == nil {
+		return defaultValue
+	}
+
+	return *value
 }
 
 func printUsage() {
