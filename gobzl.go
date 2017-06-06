@@ -35,7 +35,7 @@ func listInstances() {
 	table.SetRowSeparator("")
 	table.SetColumnSeparator("")
 	table.SetHeader([]string{
-		"ID", "NAME", "PRIVATE IP", "PUBLIC IP", "TYPE",
+		"ID", "NAME", "PRIVATE IP", "PUBLIC IP", "TYPE", "STATE",
 	})
 
 	for _, reservation := range resp.Reservations {
@@ -46,6 +46,7 @@ func listInstances() {
 				stringFromPointer(instance.PrivateIpAddress, ""),
 				stringFromPointer(instance.PublicIpAddress, ""),
 				stringFromPointer(instance.InstanceType, ""),
+				stringFromPointer(instance.State.Name, ""),
 			})
 		}
 	}
