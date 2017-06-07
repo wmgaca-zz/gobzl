@@ -119,7 +119,7 @@ func listRdsInstances(region string) {
 			stringFromPointer(dbInstance.Engine, ""),
 			stringFromPointer(dbInstance.DBInstanceClass, ""),
 			stringFromPointer(dbInstance.Endpoint.Address, ""),
-			strconv.FormatInt(*dbInstance.Endpoint.Port, 10),
+			strconv.FormatInt(int64FromPointer(dbInstance.Endpoint.Port, 0), 10),
 		})
 	}
 
@@ -127,6 +127,14 @@ func listRdsInstances(region string) {
 }
 
 func stringFromPointer(value *string, defaultValue string) string {
+	if value == nil {
+		return defaultValue
+	}
+
+	return *value
+}
+
+func int64FromPointer(value *int64, defaultValue int64) int64 {
 	if value == nil {
 		return defaultValue
 	}
