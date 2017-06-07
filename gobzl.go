@@ -1,14 +1,34 @@
 package main
 
 import (
-	"fmt"
+	"context"
+	"flag"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/google/subcommands"
 	"github.com/olekukonko/tablewriter"
 )
+
+type instancesCommand struct {
+	region string
+}
+
+func (*instancesCommand) Name() string     { return "instances" }
+func (*instancesCommand) Synopsis() string { return "List EC2 instances." }
+func (*instancesCommand) Usage() string    { return "instances [-region <aws-region-name>]" }
+
+func (c *instancesCommand) SetFlags(f *flag.FlagSet) {
+	f.StringVar(&c.region, "region", "eu-west-1", "AWS region name")
+}
+
+func (c *instancesCommand) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+	listInstances(c.region)
+
+	return subcommands.ExitSuccess
+}
 
 func getName(tags []*ec2.Tag) string {
 	for _, tag := range tags {
@@ -20,8 +40,8 @@ func getName(tags []*ec2.Tag) string {
 	return ""
 }
 
-func listInstances() {
-	conn := ec2.New(session.New(), &aws.Config{Region: aws.String("eu-west-1")})
+func listInstances(region string) {
+	conn := ec2.New(session.New(), &aws.Config{Region: aws.String(region)})
 
 	resp, err := conn.DescribeInstances(nil)
 	if err != nil {
@@ -62,21 +82,13 @@ func stringFromPointer(value *string, defaultValue string) string {
 	return *value
 }
 
-func printUsage() {
-	fmt.Println("usage: gobzl instances")
-}
-
 func main() {
-	if len(os.Args) < 2 {
-		printUsage()
-		os.Exit(1)
-	}
+	subcommands.Register(subcommands.HelpCommand(), "")
+	subcommands.Register(subcommands.FlagsCommand(), "")
+	subcommands.Register(subcommands.CommandsCommand(), "")
+	subcommands.Register(&instancesCommand{}, "")
 
-	switch os.Args[1] {
-	case "instances":
-		listInstances()
-	default:
-		printUsage()
-		os.Exit(1)
-	}
+	flag.Parse()
+	ctx := context.Background()
+	os.Exit(int(subcommands.Execute(ctx)))
 }
