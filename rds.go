@@ -21,10 +21,12 @@ func ListRdsInstances(region string) {
 	})
 
 	for _, dbInstance := range resp.DBInstances {
+		var address string
+
 		if nil != dbInstance.Endpoint.Address {
-			address := stringFromPointer(dbInstance.Endpoint.Address, "")
+			address = stringFromPointer(dbInstance.Endpoint.Address, "")
 		} else {
-			address := ""
+			address = ""
 		}
 
 		table.Append([]string{
