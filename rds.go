@@ -21,12 +21,18 @@ func ListRdsInstances(region string) {
 	})
 
 	for _, dbInstance := range resp.DBInstances {
+		if nil != dbInstance.Endpoint.Address {
+			address := stringFromPointer(dbInstance.Endpoint.Address, "")
+		} else {
+			address := ""
+		}
+
 		table.Append([]string{
 			stringFromPointer(dbInstance.DBInstanceIdentifier, ""),
 			stringFromPointer(dbInstance.DBName, ""),
 			stringFromPointer(dbInstance.Engine, ""),
 			stringFromPointer(dbInstance.DBInstanceClass, ""),
-			stringFromPointer(dbInstance.Endpoint.Address, ""),
+			address,
 			strconv.FormatInt(int64FromPointer(dbInstance.Endpoint.Port, 0), 10),
 		})
 	}
